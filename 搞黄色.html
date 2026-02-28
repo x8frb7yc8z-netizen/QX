@@ -185,23 +185,33 @@
 
     // 保存逻辑：拆分首行和备注
     window.saveItem = async function() {
-        const rawText = inputArea.value.trim();
-        if (!rawText) return;
+    const rawText = inputArea.value.trim();
+    if (!rawText) return;
 
-        const lines = rawText.split('\n');
-        const firstLine = lines[0].trim();
-        const comment = lines.slice(1).join('\n').trim();
+    const lines = rawText.split('\n');
+    const firstLine = lines[0].trim();
+    const comment = lines.slice(1).join('\n').trim();
 
-        try {
-            const newItemRef = push(ref(db, 'collections/' + docId));
-            await set(newItemRef, {
-                content: firstLine,
-                comment: comment,
-                timestamp: Date.now()
-            });
-            inputArea.value = "";
-        } catch (e) { alert("失败: " + e.message); }
+    try {
+        const collectionRef = ref(db, 'collections/' + docId);
+        const newItemRef = push(collectionRef);
+        
+        // 增加等待
+        await set(newItemRef, {
+            content: firstLine,
+            comment: comment,
+            timestamp: Date.now()
+        });
+        
+        console.log("保存成功");
+        inputArea.value = "";
+        inputArea.focus(); // 保存后自动聚焦回到输入框
+    } catch (e) { 
+        // 弹窗显示具体的错误代码，方便排查
+        alert("保存失败，错误信息: " + e.message); 
+        console.error(e);
     }
+}
 
     inputArea.addEventListener('keydown', (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveItem();
