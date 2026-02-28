@@ -179,38 +179,54 @@
     });
 
     // 核心保存逻辑（包含标题抓取）
-    window.saveItem = async function() {
-        const rawText = inputArea.value.trim();
-        if (!rawText) return;
+window.saveItem = async function() {
+    const rawText = inputArea.value.trim();
+    if (!rawText) return;
+    
+    const lines = rawText.split('\n');
+    const content = lines[0].trim();
+    const comment = lines.slice(1).join('\n').trim();
+    const isLink = /^https?:\/\/[^\s]+/.test(content);
+    
+    let displayTitle = content;
+    inputArea.value = "";
+    
+    if (isLink) {
+        idLabel.innerText = "⏳ 尝试解析标题...";
         
-        const lines = rawText.split('\n');
-        const content = lines[0].trim();
-        const comment = lines.slice(1).join('\n').trim();
-        const isLink = /^https?:\/\/[^\s]+/.test(content);
-        
-        let displayTitle = content;
-        inputArea.value = ""; // 立即清空增加反馈感
-        
-        if (isLink) {
-            idLabel.innerText = "⏳ 正在解析网页标题...";
-            try {
-                // 方案 A: 使用 allorigins 的 https 强制链接
-                const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(content)}`);
-                const json = await res.json();
-                
-                if (json.contents) {
-                    const doc = new DOMParser().parseFromString(json.contents, 'text/html');
-                    // 增加对不同标题标签的兼容性
-                    const webTitle = doc.querySelector('title')?.innerText || 
-                                     doc.querySelector('meta[property="og:title"]')?.content;
-                    if (webTitle) displayTitle = webTitle.trim();
-                }
-            } catch (e) { 
-    console.error("抓取详细错误:", e);
-    idLabel.innerText = "❌ 抓取失败 (CORS或网络限制)"; 
-}
-        }
+        // 依次尝试的代理列表
+        const proxies = [
+            url => `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(url)}`,
+            url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+            url => `https://thingproxy.freeboard.io/fetch/${url}`
+        ];
 
+        for (const getProxyUrl of proxies) {
+            try {
+                const res = await fetch(getProxyUrl(content));
+                let html = "";
+                
+                // 处理不同代理返回格式不同的问题
+                if (getProxyUrl.toString().includes("allorigins")) {
+                    const json = await res.json();
+                    html = json.contents;
+                } else {
+                    html = await res.text();
+                }
+
+                if (html) {
+                    const doc = new DOMParser().parseFromString(html, 'text/html');
+                    const webTitle = doc.querySelector('title')?.innerText;
+                    if (webTitle) {
+                        displayTitle = webTitle.trim();
+                        break; // 抓取成功，跳出循环
+                    }
+                }
+            } catch (e) {
+                continue; // 失败了，尝试下一个代理
+            }
+        }
+    }
         await push(ref(db, `collections/${docId}`), {
             title: displayTitle,
             content: content,
