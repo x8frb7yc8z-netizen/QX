@@ -206,8 +206,9 @@
                     if (webTitle) displayTitle = webTitle.trim();
                 }
             } catch (e) { 
-                console.warn("标题抓取失败:", e);
-            }
+    console.error("抓取详细错误:", e);
+    idLabel.innerText = "❌ 抓取失败 (CORS或网络限制)"; 
+}
         }
 
         await push(ref(db, `collections/${docId}`), {
