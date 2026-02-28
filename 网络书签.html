@@ -194,13 +194,20 @@
         if (isLink) {
             idLabel.innerText = "⏳ 正在解析网页标题...";
             try {
-                // 使用 allorigins 跨域中转
+                // 方案 A: 使用 allorigins 的 https 强制链接
                 const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(content)}`);
                 const json = await res.json();
-                const doc = new DOMParser().parseFromString(json.contents, 'text/html');
-                const webTitle = doc.querySelector('title')?.innerText;
-                if (webTitle) displayTitle = webTitle.trim();
-            } catch (e) { console.warn("标题抓取失败，改用原URL显示"); }
+                
+                if (json.contents) {
+                    const doc = new DOMParser().parseFromString(json.contents, 'text/html');
+                    // 增加对不同标题标签的兼容性
+                    const webTitle = doc.querySelector('title')?.innerText || 
+                                     doc.querySelector('meta[property="og:title"]')?.content;
+                    if (webTitle) displayTitle = webTitle.trim();
+                }
+            } catch (e) { 
+                console.warn("标题抓取失败:", e);
+            }
         }
 
         await push(ref(db, `collections/${docId}`), {
