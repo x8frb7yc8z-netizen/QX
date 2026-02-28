@@ -12,152 +12,111 @@
             --text-main: #1c1c1e;
             --text-sec: #8e8e93;
             --comment-clr: #636366;
+            --danger-clr: #ff3b30;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--bg-clr);
             font-family: -apple-system, system-ui, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
         }
 
         /* 顶部输入区 */
         .header-input {
             background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             padding: 15px 15px 10px 15px;
             border-bottom: 1px solid #d1d1d6;
-            z-index: 100;
-            flex-shrink: 0;
+            z-index: 100; flex-shrink: 0;
         }
 
         #mainInput {
-            width: 100%;
-            height: 100px;
-            padding: 12px;
-            border: 1px solid #d1d1d6;
-            border-radius: 12px;
-            font-size: 16px;
-            resize: none;
-            outline: none;
-            background: #fff;
-            transition: border-color 0.2s;
+            width: 100%; height: 80px;
+            padding: 12px; border: 1px solid #d1d1d6;
+            border-radius: 12px; font-size: 16px;
+            resize: none; outline: none; background: #fff;
         }
 
-        #mainInput:focus { border-color: var(--primary-clr); }
-
-        .action-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .id-label { font-size: 11px; color: var(--text-sec); font-family: monospace; }
-
-        .save-btn {
-            background: var(--primary-clr);
-            color: white;
-            border: none;
-            padding: 8px 24px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,122,255,0.2);
-        }
+        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .id-label { font-size: 11px; font-family: monospace; font-weight: bold; }
+        .save-btn { background: var(--primary-clr); color: white; border: none; padding: 8px 24px; border-radius: 20px; font-weight: 600; cursor: pointer; }
 
         /* 列表区域 */
         .list-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            flex: 1; overflow-y: auto;
+            padding: 15px; display: flex; flex-direction: column; gap: 12px;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 卡片样式 */
         .item-card {
-            background: var(--card-bg);
-            border-radius: 14px;
-            padding: 15px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-            animation: slideIn 0.3s ease-out;
+            background: var(--card-bg); border-radius: 14px;
+            padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            position: relative; animation: slideIn 0.3s ease-out;
         }
-
+        
         .link-card { border-left: 4px solid var(--primary-clr); }
-
-        .link-text {
-            color: var(--primary-clr);
-            text-decoration: none;
-            word-break: break-all;
-            font-size: 15px;
-            font-weight: 600;
-            display: block;
-        }
-
-        .plain-text {
-            margin: 0;
-            color: var(--text-main);
-            font-size: 15px;
-            line-height: 1.4;
-            white-space: pre-wrap;
-        }
-
-        /* 备注样式 */
-        .comment-box {
-            margin-top: 10px;
-            padding-top: 8px;
-            border-top: 1px dashed #eee;
-            font-size: 13px;
-            color: var(--comment-clr);
-            line-height: 1.4;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 12px;
-            font-size: 11px;
-            color: var(--text-sec);
-        }
-
+        .link-text { color: var(--primary-clr); text-decoration: none; word-break: break-all; font-size: 15px; font-weight: 600; display: block; margin-right: 25px; }
+        .plain-text { margin: 0; color: var(--text-main); font-size: 15px; white-space: pre-wrap; cursor: pointer; margin-right: 25px; }
+        .comment-box { margin-top: 10px; padding: 8px; background: #f8f8fa; border-radius: 8px; font-size: 13px; color: var(--comment-clr); cursor: pointer; }
+        
+        .card-footer { display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--text-sec); }
         .copy-tag { cursor: pointer; color: var(--primary-clr); font-weight: 500; }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* 删除按钮 */
+        .del-btn {
+            position: absolute; top: 10px; right: 10px;
+            width: 24px; height: 24px; color: #ccc;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer;
         }
+        .del-btn:hover { color: var(--danger-clr); }
 
-        @media (min-width: 600px) {
-            .header-input, .list-container { width: 500px; margin: 0 auto; }
+        /* 编辑弹窗 */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;
         }
+        .modal-content { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 20px; }
+        .modal-content textarea { width: 100%; height: 120px; margin: 15px 0; padding: 10px; border-radius: 10px; border: 1px solid #ddd; font-size: 15px; }
+        .modal-btns { display: flex; gap: 10px; }
+        .modal-btns button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-save { background: var(--primary-clr); color: white; }
+        .btn-cancel { background: #eee; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @media (min-width: 600px) { .header-input, .list-container { width: 500px; margin: 0 auto; } }
     </style>
 </head>
 <body>
 
 <div class="header-input">
-    <textarea id="mainInput" placeholder="这里：粘贴链接&#10;这里：备注信息..."></textarea>
+    <textarea id="mainInput" placeholder="第一行：内容&#10;后面行：备注信息..."></textarea>
     <div class="action-bar">
-        <span class="id-label" id="idDisplay">ID: ...</span>
+        <span class="id-label" id="idDisplay">连接中...</span>
         <button onclick="saveItem()" class="save-btn">保存</button>
     </div>
 </div>
 
 <div id="listContainer" class="list-container"></div>
 
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin:0">编辑收藏</h3>
+        <textarea id="editInput"></textarea>
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeEdit()">取消</button>
+            <button class="btn-save" id="confirmEditBtn">保存</button>
+        </div>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, push, query, limitToLast, onChildAdded, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, push, query, limitToLast, onChildAdded, onChildChanged, onChildRemoved, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDQwjomxjLURd0nWmS0RuhkaecXISqALzs",
@@ -172,102 +131,110 @@
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
 
-    window.getDocId = function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const customId = urlParams.get('customid');
-        return customId ? "cid_" + customId.trim() : "default_collection";
-    }
-
+    const urlParams = new URLSearchParams(window.location.search);
+    const docId = urlParams.get('customid') ? "cid_" + urlParams.get('customid').trim() : "default_collection";
+    
     const inputArea = document.getElementById('mainInput');
     const listEl = document.getElementById('listContainer');
-    const docId = window.getDocId();
     const idLabel = document.getElementById('idDisplay');
 
-    // --- 诊断功能：监听连接状态 ---
-    const connectedRef = ref(db, ".info/connected");
-    onValue(connectedRef, (snap) => {
-        if (snap.val() === true) {
-            idLabel.innerText = "● 已连接 ID: " + docId;
-            idLabel.style.color = "green";
-        } else {
-            idLabel.innerText = "○ 连接中/断开... ID: " + docId;
-            idLabel.style.color = "red";
-        }
+    // 连接状态
+    onValue(ref(db, ".info/connected"), (snap) => {
+        idLabel.innerText = (snap.val() === true ? "● 已连接 ID: " : "○ 断开 ID: ") + docId;
+        idLabel.style.color = snap.val() === true ? "green" : "red";
     });
 
+    // 保存新项
     window.saveItem = async function() {
-        const rawText = inputArea.value.trim();
-        if (!rawText) return;
-
-        const lines = rawText.split('\n');
-        const firstLine = lines[0].trim();
-        const comment = lines.slice(1).join('\n').trim();
-
-        try {
-            const collectionRef = ref(db, 'collections/' + docId);
-            const newItemRef = push(collectionRef);
-            
-            console.log("正在尝试提交到:", 'collections/' + docId);
-            
-            await set(newItemRef, {
-                content: firstLine,
-                comment: comment,
-                timestamp: Date.now()
-            });
-            
-            inputArea.value = "";
-            inputArea.focus();
-        } catch (e) { 
-            alert("保存失败！请检查 Firebase Rules 是否设为 true。\n错误代码: " + e.message); 
-            console.error(e);
-        }
+        const text = inputArea.value.trim();
+        if (!text) return;
+        const lines = text.split('\n');
+        await push(ref(db, `collections/${docId}`), {
+            content: lines[0].trim(),
+            comment: lines.slice(1).join('\n').trim(),
+            timestamp: Date.now()
+        });
+        inputArea.value = "";
     }
 
-    inputArea.addEventListener('keydown', (e) => {
-        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveItem();
+    // --- 实时监听逻辑 ---
+    const collectionRef = ref(db, `collections/${docId}`);
+
+    // 处理新增
+    onChildAdded(query(collectionRef, limitToLast(50)), (snap) => {
+        const card = createCardElement(snap.key, snap.val());
+        listEl.insertBefore(card, listEl.firstChild);
     });
 
-    // 监听逻辑
-    const collectionQuery = query(ref(db, 'collections/' + docId), limitToLast(40));
-    onChildAdded(collectionQuery, (snapshot) => {
-        renderCard(snapshot.val());
+    // 处理修改
+    onChildChanged(collectionRef, (snap) => {
+        const oldCard = document.getElementById(snap.key);
+        if (oldCard) {
+            const newCard = createCardElement(snap.key, snap.val());
+            listEl.replaceChild(newCard, oldCard);
+        }
     });
 
-    function renderCard(data) {
-        if (!data || !data.content) return;
-        const isLink = /^https?:\/\/[^\s]+/.test(data.content.trim());
-        const time = new Date(data.timestamp).toLocaleString([], { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
+    // 处理删除
+    onChildRemoved(collectionRef, (snap) => {
+        document.getElementById(snap.key)?.remove();
+    });
+
+    // 生成卡片 DOM
+    function createCardElement(key, data) {
+        const isLink = /^https?:\/\/[^\s]+/.test(data.content);
         const div = document.createElement('div');
+        div.id = key;
         div.className = 'item-card' + (isLink ? ' link-card' : '');
-        
-        const mainHtml = isLink 
-            ? `<a href="${data.content}" target="_blank" class="link-text">${data.content}</a>`
-            : `<p class="plain-text">${data.content}</p>`;
-
-        const commentHtml = data.comment 
-            ? `<div class="comment-box">备注：${data.comment}</div>` 
-            : '';
+        const time = new Date(data.timestamp).toLocaleString([], { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
         div.innerHTML = `
-            ${mainHtml}
-            ${commentHtml}
+            <div class="del-btn" onclick="deleteItem('${key}')">×</div>
+            ${isLink ? `<a href="${data.content}" target="_blank" class="link-text">${data.content}</a>` : `<p class="plain-text" onclick="openEdit('${key}', \`${data.content.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`, \`${(data.comment||'').replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`)">${data.content}</p>`}
+            ${data.comment ? `<div class="comment-box" onclick="openEdit('${key}', \`${data.content.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`, \`${data.comment.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`)">${data.comment}</div>` : ''}
             <div class="card-footer">
                 <span>${time}</span>
-                <span class="copy-tag" onclick="copyText(this, \`${data.content.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">复制链接</span>
+                <span class="copy-tag" onclick="copyText(this, \`${data.content}\`)">复制内容</span>
             </div>
         `;
-        listEl.insertBefore(div, listEl.firstChild);
+        return div;
     }
 
-    window.copyText = async (el, text) => {
-        try {
-            await navigator.clipboard.writeText(text);
-            const old = el.innerText;
-            el.innerText = "已复制";
-            setTimeout(() => el.innerText = old, 1000);
-        } catch (err) {}
+    // 删除函数
+    window.deleteItem = (key) => {
+        if (confirm("确定删除这条书签吗？")) {
+            remove(ref(db, `collections/${docId}/${key}`));
+        }
     };
-    </script>
+
+    // 编辑弹窗函数
+    let currentEditKey = null;
+    window.openEdit = (key, content, comment) => {
+        currentEditKey = key;
+        document.getElementById('editInput').value = content + (comment ? '\n' + comment : '');
+        document.getElementById('editModal').style.display = 'flex';
+    };
+
+    window.closeEdit = () => { document.getElementById('editModal').style.display = 'none'; };
+
+    document.getElementById('confirmEditBtn').onclick = async () => {
+        const text = document.getElementById('editInput').value.trim();
+        if (!text || !currentEditKey) return;
+        const lines = text.split('\n');
+        await update(ref(db, `collections/${docId}/${currentEditKey}`), {
+            content: lines[0].trim(),
+            comment: lines.slice(1).join('\n').trim()
+        });
+        closeEdit();
+    };
+
+    window.copyText = async (el, text) => {
+        await navigator.clipboard.writeText(text);
+        const old = el.innerText; el.innerText = "已复制";
+        setTimeout(() => el.innerText = old, 1000);
+    };
+
+    inputArea.addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveItem(); });
+</script>
 </body>
 </html>
