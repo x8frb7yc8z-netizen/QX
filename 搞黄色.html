@@ -157,7 +157,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, set, push, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getDatabase, ref, set, push, query, limitToLast, onChildAdded, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDQwjomxjLURd0nWmS0RuhkaecXISqALzs",
@@ -181,48 +181,60 @@
     const inputArea = document.getElementById('mainInput');
     const listEl = document.getElementById('listContainer');
     const docId = window.getDocId();
-    document.getElementById('idDisplay').innerText = "ID: " + docId;
+    const idLabel = document.getElementById('idDisplay');
 
-    // 保存逻辑：拆分首行和备注
+    // --- 诊断功能：监听连接状态 ---
+    const connectedRef = ref(db, ".info/connected");
+    onValue(connectedRef, (snap) => {
+        if (snap.val() === true) {
+            idLabel.innerText = "● 已连接 ID: " + docId;
+            idLabel.style.color = "green";
+        } else {
+            idLabel.innerText = "○ 连接中/断开... ID: " + docId;
+            idLabel.style.color = "red";
+        }
+    });
+
     window.saveItem = async function() {
-    const rawText = inputArea.value.trim();
-    if (!rawText) return;
+        const rawText = inputArea.value.trim();
+        if (!rawText) return;
 
-    const lines = rawText.split('\n');
-    const firstLine = lines[0].trim();
-    const comment = lines.slice(1).join('\n').trim();
+        const lines = rawText.split('\n');
+        const firstLine = lines[0].trim();
+        const comment = lines.slice(1).join('\n').trim();
 
-    try {
-        const collectionRef = ref(db, 'collections/' + docId);
-        const newItemRef = push(collectionRef);
-        
-        // 增加等待
-        await set(newItemRef, {
-            content: firstLine,
-            comment: comment,
-            timestamp: Date.now()
-        });
-        
-        console.log("保存成功");
-        inputArea.value = "";
-        inputArea.focus(); // 保存后自动聚焦回到输入框
-    } catch (e) { 
-        // 弹窗显示具体的错误代码，方便排查
-        alert("保存失败，错误信息: " + e.message); 
-        console.error(e);
+        try {
+            const collectionRef = ref(db, 'collections/' + docId);
+            const newItemRef = push(collectionRef);
+            
+            console.log("正在尝试提交到:", 'collections/' + docId);
+            
+            await set(newItemRef, {
+                content: firstLine,
+                comment: comment,
+                timestamp: Date.now()
+            });
+            
+            inputArea.value = "";
+            inputArea.focus();
+        } catch (e) { 
+            alert("保存失败！请检查 Firebase Rules 是否设为 true。\n错误代码: " + e.message); 
+            console.error(e);
+        }
     }
-}
 
     inputArea.addEventListener('keydown', (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') saveItem();
     });
 
+    // 监听逻辑
     const collectionQuery = query(ref(db, 'collections/' + docId), limitToLast(40));
     onChildAdded(collectionQuery, (snapshot) => {
         renderCard(snapshot.val());
     });
 
     function renderCard(data) {
+        if (!data || !data.content) return;
         const isLink = /^https?:\/\/[^\s]+/.test(data.content.trim());
         const time = new Date(data.timestamp).toLocaleString([], { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         
@@ -256,6 +268,6 @@
             setTimeout(() => el.innerText = old, 1000);
         } catch (err) {}
     };
-</script>
+    </script>
 </body>
 </html>
